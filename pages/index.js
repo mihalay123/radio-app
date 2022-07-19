@@ -1,6 +1,25 @@
 import Head from 'next/head'
+import { useEffect, useState } from 'react'
+import Dashboard from '../src/components/Dashboard'
+
+const url = new URL('http://localhost:3000/api/radio')
 
 export default function Home() {
+  const [stations, setStations] = useState([])
+  // const [isFavorite, setFavorite] = useState(false)
+  const [location, setLocation] = useState(null)
+  const [genre, setGenre] = useState(null)
+  useEffect(() => {
+    const query = new URLSearchParams({
+      location: location,
+      genre: genre || undefined,
+    })
+    fetch(url + query)
+      .then((response) => response.json())
+      .then((data) => setStations(data.stations))
+  }, [location])
+  useEffect(() => console.log('stations', stations), [stations, genre])
+
   return (
     <div className="">
       <Head>
@@ -9,6 +28,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <Dashboard
+        data={stations}
+        setLocation={setLocation}
+        setGenre={setGenre}
+      />
+      <div className="text-white">hey</div>
       <main className=""></main>
 
       <footer className=""></footer>
