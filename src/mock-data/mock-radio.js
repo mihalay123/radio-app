@@ -44,7 +44,7 @@ export const radio_data = [
   {
     name: 'YO! FM',
     location: 'us',
-    genre: 'hip-hop',
+    genre: 'hip hop',
     image: 'url',
     audio: 'url',
   },
@@ -58,7 +58,7 @@ export const radio_data = [
   {
     name: 'Maximum FM',
     location: 'de',
-    genre: 'adult-pop',
+    genre: 'adult pop',
     image: 'url',
     audio: 'url',
   },

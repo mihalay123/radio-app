@@ -2,23 +2,66 @@ import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import Dashboard from '../src/components/Dashboard'
 
-const url = new URL('http://localhost:3000/api/radio')
+import { buildURLWithQuery } from '../src/utilites/buildURLWithQuery'
 
 export default function Home() {
   const [stations, setStations] = useState([])
-  // const [isFavorite, setFavorite] = useState(false)
+  const [favorites, setFavorites] = useState([])
   const [location, setLocation] = useState(null)
   const [genre, setGenre] = useState(null)
+  const [currentPlaying, setCurrentPlaying] = useState(null)
+
+  const handleLocation = (newLocation) => {
+    if (location === newLocation) {
+      setLocation(null)
+      return
+    }
+    setLocation(newLocation)
+  }
+
+  const handleGenre = (newGenre) => {
+    if (genre === newGenre) {
+      setGenre(null)
+      return
+    }
+    setGenre(newGenre)
+  }
+
+  const addFavorite = (station) => {
+    if (favorites.find(({ name }) => name === station.name)) {
+      return
+    }
+    setFavorites([...favorites, station])
+  }
+
+  const handlePlayingStation = (station) => {
+    const stationName = station.name
+    if (currentPlaying === stationName) {
+      setCurrentPlaying(null)
+    }
+
+    setCurrentPlaying(stationName)
+  }
+
   useEffect(() => {
-    const query = new URLSearchParams({
-      location: location,
-      genre: genre || undefined,
-    })
-    fetch(url + query)
+    const paramURL = buildURLWithQuery(location, genre, favorites)
+    fetch(paramURL, { method: 'GET' })
       .then((response) => response.json())
-      .then((data) => setStations(data.stations))
-  }, [location])
-  useEffect(() => console.log('stations', stations), [stations, genre])
+      .then((data) => {
+        setStations(data.stations)
+        setFavorites(data.favorites)
+      })
+  }, [location, genre])
+
+  useEffect(() => {
+    favorites.length &&
+      fetch('http://localhost:3000/api/radio', {
+        method: 'POST',
+        body: JSON.stringify({
+          favorites,
+        }),
+      })
+  }, [favorites])
 
   return (
     <div className="">
@@ -30,8 +73,11 @@ export default function Home() {
 
       <Dashboard
         data={stations}
-        setLocation={setLocation}
-        setGenre={setGenre}
+        favorites={favorites}
+        handleLocation={handleLocation}
+        handleGenre={handleGenre}
+        addFavorite={addFavorite}
+        handlePlayingStation={handlePlayingStation}
       />
       <div className="text-white">hey</div>
       <main className=""></main>
